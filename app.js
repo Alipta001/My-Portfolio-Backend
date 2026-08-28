@@ -11,12 +11,12 @@ const { notFound, errorHandler } = require('./src/middleware/error');
 
 const app = express();
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'src', 'views'));
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: frontendUrl, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'src', 'public')));
 const sessionOptions = { secret: sessionSecret, resave: false, saveUninitialized: false, cookie: { httpOnly: true, sameSite: 'lax', maxAge: 1000 * 60 * 60 * 8 } };
 if (process.env.NODE_ENV !== 'test') sessionOptions.store = MongoStore.create({ mongoUrl: mongoUri });
 app.use(session(sessionOptions));
