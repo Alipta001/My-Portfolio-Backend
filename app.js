@@ -4,10 +4,10 @@ const cors = require('cors');
 const helmet = require('helmet');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const { frontendUrl, sessionSecret, mongoUri } = require('./config/env');
-const apiRoutes = require('./routes/api');
-const adminRoutes = require('./routes/admin');
-const { notFound, errorHandler } = require('./middleware/error');
+const { frontendUrl, sessionSecret, mongoUri } = require('./src/config/env');
+const apiRoutes = require('./src/routes/api');
+const adminRoutes = require('./src/routes/admin');
+const { notFound, errorHandler } = require('./src/middleware/error');
 
 const app = express();
 app.set('view engine', 'ejs');

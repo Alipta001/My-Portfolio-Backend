@@ -1,6 +1,6 @@
 const app = require('./app');
-const connectDatabase = require('./config/db');
-const { port } = require('./config/env');
+const connectDatabase = require('./src/config/db');
+const { port } = require('./src/config/env');
 
 const server = app.listen(port, () => {
   console.log(`Backend is running at http://localhost:${port}`);
