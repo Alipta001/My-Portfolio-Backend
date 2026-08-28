@@ -1,0 +1,33 @@
+const path = require('path');
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const { frontendUrl, sessionSecret, mongoUri } = require('./config/env');
+const apiRoutes = require('./routes/api');
+const adminRoutes = require('./routes/admin');
+const { notFound, errorHandler } = require('./middleware/error');
+
+const app = express();
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors({ origin: frontendUrl, credentials: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+const sessionOptions = { secret: sessionSecret, resave: false, saveUninitialized: false, cookie: { httpOnly: true, sameSite: 'lax', maxAge: 1000 * 60 * 60 * 8 } };
+if (process.env.NODE_ENV !== 'test') sessionOptions.store = MongoStore.create({ mongoUrl: mongoUri });
+app.use(session(sessionOptions));
+app.use((req, res, next) => {
+	res.locals.admin = req.session.admin || null;
+	next();
+});
+app.use('/api', apiRoutes);
+app.use('/admin', adminRoutes);
+app.get('/', (_req, res) => res.json({ success: true, message: 'Portfolio backend is running', data: [] }));
+app.get('/health', (_req, res) => res.json({ success: true, message: 'API is healthy', data: [] }));
+app.use(notFound);
+app.use(errorHandler);
+module.exports = app;
