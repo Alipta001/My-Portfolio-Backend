@@ -68,7 +68,7 @@ class ApiController {
         success: true,
         message: 'Your message has been received.',
         emailSent,
-        data: [contact],
+        data: contact,
       });
     } catch (error) {
       console.error('Contact create failed:', error.message || error);

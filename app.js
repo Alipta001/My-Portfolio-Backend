@@ -67,10 +67,7 @@ const requiredEnvVariables = [
   "MONGODB_URI",
   "FRONTEND_URL",
   "SESSION_SECRET",
-  "EMAIL_HOST",
-  "EMAIL_PORT",
-  "EMAIL_USER",
-  "EMAIL_PASS",
+  "BREVO_API_KEY",
   "EMAIL_FROM",
   "EMAIL_TO",
 ];
