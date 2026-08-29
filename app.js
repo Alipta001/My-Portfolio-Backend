@@ -1,6 +1,8 @@
-require("dotenv").config();
-
 const path = require("path");
+require("dotenv").config({
+  path: path.join(__dirname, ".env"),
+});
+
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -65,6 +67,12 @@ const requiredEnvVariables = [
   "MONGODB_URI",
   "FRONTEND_URL",
   "SESSION_SECRET",
+  "EMAIL_HOST",
+  "EMAIL_PORT",
+  "EMAIL_USER",
+  "EMAIL_PASS",
+  "EMAIL_FROM",
+  "EMAIL_TO",
 ];
 
 for (const variable of requiredEnvVariables) {
@@ -109,7 +117,9 @@ app.use(
 app.use(
   cors({
     origin(origin, callback) {
-      if (isAllowedOrigin(origin)) {
+      const frontendOrigin = process.env.FRONTEND_URL;
+
+      if (!origin || origin === frontendOrigin || origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1") || origin.endsWith(".vercel.app")) {
         callback(null, true);
         return;
       }

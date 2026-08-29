@@ -60,9 +60,21 @@ class AdminController {
     return res.render('dashboard/index', { title: 'Dashboard', counts: { projects, skills, experience, education, services, unread } });
   }
 
-  async contacts(req, res) { return res.render('contacts/index', { title: 'Contacts', contacts: await Contact.find().sort({ createdAt: -1 }).lean() }); }
-  async toggleContact(req, res) { await Contact.findByIdAndUpdate(req.params.id, { read: req.body.read === 'true' }); return res.redirect('/admin/contacts'); }
-  async deleteContact(req, res) { await Contact.findByIdAndDelete(req.params.id); return res.redirect('/admin/contacts'); }
+  async contacts(req, res) {
+    const contacts = await Contact.find().sort({ createdAt: -1 }).lean();
+    return res.render('contacts/index', { title: 'Contacts', contacts });
+  }
+
+  async toggleContact(req, res) {
+    const isRead = req.body.read === 'true';
+    await Contact.findByIdAndUpdate(req.params.id, { isRead, read: isRead }, { runValidators: true });
+    return res.redirect('/admin/contacts');
+  }
+
+  async deleteContact(req, res) {
+    await Contact.findByIdAndDelete(req.params.id);
+    return res.redirect('/admin/contacts');
+  }
 
   async seedAdmin(req, res) {
     if (await Admin.countDocuments()) return res.status(409).send('An admin already exists.');

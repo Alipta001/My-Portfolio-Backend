@@ -4,7 +4,7 @@ const Experience = require('../models/Experience');
 const Education = require('../models/Education');
 const Service = require('../models/Service');
 const Contact = require('../models/Contact');
-const { notifyOwner } = require('../config/mailer');
+const { sendContactEmail } = require('../utils/mailer');
 
 class ApiController {
   constructor() {
@@ -40,9 +40,49 @@ class ApiController {
   }
 
   async createContact(req, res) {
-    const contact = await Contact.create({ name: req.body.name, email: req.body.email, message: req.body.message });
-    try { await notifyOwner(contact); } catch (error) { console.error('Contact email failed:', error.message); }
-    return this.response(res, 'Message sent successfully', [contact]);
+    console.log('📩 Contact request received');
+
+    try {
+      const { name, email, message } = req.body;
+      const contact = await Contact.create({
+        name: String(name || '').trim(),
+        email: String(email || '').trim().toLowerCase(),
+        message: String(message || '').trim(),
+      });
+
+      console.log('✅ Contact saved to MongoDB');
+
+      let emailSent = false;
+
+      try {
+        const result = await sendContactEmail({
+          name: contact.name,
+          email: contact.email,
+          message: contact.message,
+        });
+        emailSent = !!result?.messageId;
+      } catch (error) {
+        console.error('Contact email failed:', error.message || error);
+        emailSent = false;
+      }
+
+      console.log(`📧 Email result: ${emailSent}`);
+      console.log('🚀 Sending API response');
+
+      return res.status(201).json({
+        success: true,
+        message: 'Your message has been received.',
+        emailSent,
+        data: [contact],
+      });
+    } catch (error) {
+      console.error('Contact create failed:', error.message || error);
+      return res.status(500).json({
+        success: false,
+        message: 'Unable to save your message right now.',
+        data: [],
+      });
+    }
   }
 }
 

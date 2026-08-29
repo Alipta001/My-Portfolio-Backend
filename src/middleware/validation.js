@@ -6,7 +6,13 @@ const contactValidation = [
   body('message').trim().isLength({ min: 10, max: 5000 }).withMessage('Message must be 10-5000 characters'),
   (req, res, next) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ success: false, message: 'Validation failed', data: errors.array() });
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        data: errors.array(),
+      });
+    }
     next();
   },
 ];
