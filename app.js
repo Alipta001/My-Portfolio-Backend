@@ -47,9 +47,7 @@ const requiredEnvVariables = [
 
 for (const variable of requiredEnvVariables) {
   if (!process.env[variable]) {
-    console.warn(
-      `⚠️ Missing environment variable: ${variable}`
-    );
+    console.warn(`⚠️ Missing environment variable: ${variable}`);
   }
 }
 
@@ -119,18 +117,15 @@ app.use(
 
 const sessionOptions = {
   secret: process.env.SESSION_SECRET,
-
   resave: false,
-
   saveUninitialized: false,
 
   cookie: {
     httpOnly: true,
-
     sameSite: "lax",
 
-    secure:
-      process.env.NODE_ENV === "production",
+    // Secure cookies only in production
+    secure: process.env.NODE_ENV === "production",
 
     maxAge: 1000 * 60 * 60 * 8,
   },
@@ -152,8 +147,7 @@ app.use(session(sessionOptions));
 // ======================================================
 
 app.use((req, res, next) => {
-  res.locals.admin =
-    req.session?.admin || null;
+  res.locals.admin = req.session?.admin || null;
 
   next();
 });
@@ -172,12 +166,9 @@ app.use("/admin", adminRoutes);
 // ROOT ROUTE
 // ======================================================
 
+// Redirect the main Render URL to the EJS Admin Panel
 app.get("/", (_req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Portfolio backend is running",
-    data: [],
-  });
+  res.redirect("/admin");
 });
 
 // ======================================================
@@ -206,10 +197,10 @@ app.use(errorHandler);
 
 connectDatabase()
   .then(() => {
-    console.log("MongoDB connected successfully");
+    console.log("✅ MongoDB connected successfully");
   })
   .catch((error) => {
-    console.error(`MongoDB connection failed: ${error.message}`);
+    console.error(`❌ MongoDB connection failed: ${error.message}`);
   });
 
 // ======================================================
@@ -220,7 +211,7 @@ const server = app.listen(
   PORT,
   "0.0.0.0",
   () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`🚀 Server is running on port ${PORT}`);
   }
 );
 
@@ -229,13 +220,10 @@ const server = app.listen(
 // ======================================================
 
 function shutdown(signal) {
-  console.log(
-    `\n⚠️ ${signal} received. Shutting down gracefully...`
-  );
+  console.log(`\n⚠️ ${signal} received. Shutting down gracefully...`);
 
   server.close(() => {
     console.log("✅ HTTP server closed");
-
     process.exit(0);
   });
 }
