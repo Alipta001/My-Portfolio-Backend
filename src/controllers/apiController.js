@@ -4,7 +4,7 @@ const Experience = require('../models/Experience');
 const Education = require('../models/Education');
 const Service = require('../models/Service');
 const Contact = require('../models/Contact');
-const { sendContactEmail } = require('../utils/mailer');
+const { notifyOwner } = require('../utils/mailer');
 
 class ApiController {
   constructor() {
@@ -55,12 +55,7 @@ class ApiController {
       let emailSent = false;
 
       try {
-        const result = await sendContactEmail({
-          name: contact.name,
-          email: contact.email,
-          message: contact.message,
-        });
-        emailSent = !!result?.messageId;
+        emailSent = await notifyOwner(contact);
       } catch (error) {
         console.error('Contact email failed:', error.message || error);
         emailSent = false;
