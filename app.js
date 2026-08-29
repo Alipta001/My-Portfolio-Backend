@@ -57,6 +57,7 @@ for (const variable of requiredEnvVariables) {
 
 const app = express();
 
+app.set("trust proxy", 1);
 // ======================================================
 // VIEW ENGINE
 // ======================================================
@@ -117,19 +118,25 @@ app.use(
 
 const sessionOptions = {
   secret: process.env.SESSION_SECRET,
+
   resave: false,
+
   saveUninitialized: false,
+
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: "sessions",
+  }),
 
   cookie: {
     httpOnly: true,
     sameSite: "lax",
-
-    // Secure cookies only in production
     secure: process.env.NODE_ENV === "production",
-
     maxAge: 1000 * 60 * 60 * 8,
   },
 };
+
+app.use(session(sessionOptions));
 
 // ======================================================
 // MONGODB SESSION STORE
