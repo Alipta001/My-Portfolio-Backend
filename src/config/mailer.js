@@ -1,5 +1,14 @@
 const nodemailer = require('nodemailer');
-const { ownerEmail, smtp } = require('./env');
+
+const smtpPort = Number(process.env.EMAIL_PORT || 587);
+const smtp = {
+  host: process.env.EMAIL_HOST,
+  port: smtpPort,
+  user: process.env.EMAIL_USER,
+  pass: process.env.EMAIL_PASS,
+  from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+};
+const ownerEmail = process.env.EMAIL_USER || '';
 
 const transporter = smtp.host && smtp.user && smtp.pass
   ? nodemailer.createTransport({ host: smtp.host, port: smtp.port, secure: smtp.port === 465, auth: { user: smtp.user, pass: smtp.pass } })

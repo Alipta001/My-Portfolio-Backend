@@ -1,9 +1,14 @@
-const mongoose = require('mongoose');
-const { mongoUri } = require('./env');
+const mongoose = require("mongoose");
 
 async function connectDatabase() {
-  await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 5000 });
-  console.log('MongoDB connected');
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+    });
+
+  } catch (error) {
+    throw error;
+  }
 }
 
 module.exports = connectDatabase;
