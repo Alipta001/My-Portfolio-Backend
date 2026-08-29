@@ -23,10 +23,10 @@ const projects = [
       "REST API",
     ],
     image:
-      "https://images.unsplash.com/photo-1512132411229-c30391241dd8?q=80&w=600",
+      "https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1200&auto=format&fit=crop",
     gradient: "from-[#FF4E50] to-[#F9D423]",
     size: "lg:col-span-8",
-    link: "",
+    link: "https://golpokotha.vercel.app",
     githubUrl: "",
   },
 
