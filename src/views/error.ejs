@@ -1,1 +1,7 @@
-<%- include('partials/header') %><section class="auth"><h1><%= message %></h1><a href="/admin/dashboard">Return to dashboard</a></section><%- include('partials/footer') %>
+<%- include('partials/header') %>
+<section class="auth">
+  <h1><%= message || 'Something went wrong' %></h1>
+  <a href="/admin/dashboard">Return to dashboard</a>
+</section>
+<%- include('partials/footer') %>
+

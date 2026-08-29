@@ -8,12 +8,52 @@ class AuthController {
   }
 
   async login(req, res) {
-    const admin = await Admin.findOne({ email: req.body.email }).select('+password');
-    if (!admin || !(await bcrypt.compare(req.body.password, admin.password))) {
-      return res.status(401).render('auth/login', { title: 'Admin Login', error: 'Invalid email or password' });
+    console.log('Login attempt:', req.body?.email || 'missing-email');
+
+    try {
+      const email = String(req.body?.email || '').trim().toLowerCase();
+      const password = String(req.body?.password || '');
+
+      if (!email || !password) {
+        return res.status(400).render('auth/login', {
+          title: 'Admin Login',
+          error: 'Email and password are required',
+        });
+      }
+
+      const admin = await Admin.findOne({ email }).select('+password');
+      const isValidPassword = admin && admin.password && await bcrypt.compare(password, admin.password);
+
+      if (!admin || !isValidPassword) {
+        return res.status(401).render('auth/login', {
+          title: 'Admin Login',
+          error: 'Invalid email or password',
+        });
+      }
+
+      req.session.admin = {
+        id: admin._id.toString(),
+        email: admin.email,
+      };
+
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).render('auth/login', {
+            title: 'Admin Login',
+            error: 'Unable to save session. Please try again.',
+          });
+        }
+
+        return res.redirect('/admin/dashboard');
+      });
+    } catch (error) {
+      console.error('Login catch error:', error);
+      return res.status(500).render('auth/login', {
+        title: 'Admin Login',
+        error: 'Something went wrong while signing in',
+      });
     }
-    req.session.admin = { id: admin._id.toString(), name: admin.name, email: admin.email };
-    return res.redirect('/admin/dashboard');
   }
 
   logout(req, res) {
