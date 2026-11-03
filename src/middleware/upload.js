@@ -13,7 +13,22 @@ const storage = multer.diskStorage({
 const imageUpload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (_req, file, callback) => callback(null, /^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)),
+  fileFilter: (_req, file, callback) => callback(null, /^image\/(jpeg|jpg|png|webp|gif|svg\+xml|avif)$/i.test(file.mimetype)),
 });
 
-module.exports = { imageUpload };
+function handleImageUpload(req, res, next) {
+  imageUpload.single('image')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        err.status = 400;
+        err.message = 'Uploaded image exceeds the 5MB file size limit.';
+      } else {
+        err.status = 400;
+      }
+      return next(err);
+    }
+    next();
+  });
+}
+
+module.exports = { imageUpload, handleImageUpload };

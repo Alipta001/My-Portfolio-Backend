@@ -6,7 +6,7 @@ function notFound(req, res, next) {
 
 function errorHandler(error, req, res, _next) {
   const status = error.status || 500;
-  const message = status === 500 ? 'Something went wrong' : (error.message || 'Request failed');
+  const message = error.message || (status === 500 ? 'Something went wrong' : 'Request failed');
 
   console.error(`${req.method} ${req.originalUrl} failed:`, error.stack || error.message || error);
 

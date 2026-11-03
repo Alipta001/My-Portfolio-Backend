@@ -34,7 +34,7 @@ const express = require("express");
 const methodOverride = require("method-override");
 
 const { requireAdmin } = require("../../middleware/auth");
-const { imageUpload } = require("../../middleware/upload");
+const { imageUpload, handleImageUpload } = require("../../middleware/upload");
 
 const auth = require("../../controllers/authController");
 const controller = require("../../controllers/adminController");
@@ -173,7 +173,7 @@ Object.entries(controller.resources).forEach(
     // POST /admin/services
     router.post(
       `/${resource}`,
-      imageUpload.single("image"),
+      handleImageUpload,
       actions.create
     );
 
@@ -186,7 +186,7 @@ Object.entries(controller.resources).forEach(
     // PUT /admin/projects/:id
     router.put(
       `/${resource}/:id`,
-      imageUpload.single("image"),
+      handleImageUpload,
       actions.update
     );
 
