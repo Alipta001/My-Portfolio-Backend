@@ -26,23 +26,105 @@
 
       <% if (isArrayField) { %>
         <textarea name="<%= field %>" rows="3" placeholder="One item per line or comma-separated"><%= isArray ? value.join('\n') : (value || '') %></textarea>
+
       <% } else if (isTextField) { %>
         <textarea name="<%= field %>" rows="5" placeholder="Enter <%= field %>..."><%= isArray ? value.join('\n') : (value || '') %></textarea>
+
       <% } else if (field === 'image') { %>
         <input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,image/avif">
         <input type="text" name="imageUrl" value="<%= (typeof record.imageUrl !== 'undefined' ? record.imageUrl : (typeof value === 'string' ? value : '')) %>" placeholder="Or enter image URL">
         <% if (value && typeof value === 'string' && value.trim()) { %>
           <small style="color: #8fa4b4; margin-top: 4px;">Current image: <a href="<%= value %>" target="_blank" style="color: #52d6d0;"><%= value %></a></small>
         <% } %>
+
       <% } else if (field === 'published') { %>
         <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
           <input type="checkbox" name="published" value="true" <%= value !== false ? 'checked' : '' %>>
           <span style="color: #e7eef5; font-size: 14px;">Active / Published on portfolio</span>
         </div>
-      <% } else if (field === 'gradient') { %>
-        <input name="<%= field %>" value="<%= value || '' %>" placeholder="e.g. from-cyan-500 to-blue-500">
-      <% } else if (field === 'size') { %>
-        <input name="<%= field %>" value="<%= value || '' %>" placeholder="e.g. lg:col-span-6 or lg:col-span-12">
+
+      <% } else if (field === 'gradient') { 
+        const gradientOptions = [
+          { value: 'from-cyan-500 to-blue-500', label: 'Cyan & Ocean Blue (Default)', hex: 'linear-gradient(90deg, #06b6d4, #3b82f6)' },
+          { value: 'from-[#FF4E50] to-[#F9D423]', label: 'Sunset Orange & Gold', hex: 'linear-gradient(90deg, #FF4E50, #F9D423)' },
+          { value: 'from-[#11998e] to-[#38ef7d]', label: 'Emerald & Mint Green', hex: 'linear-gradient(90deg, #11998e, #38ef7d)' },
+          { value: 'from-[#FF512F] to-[#DD2476]', label: 'Fire Red & Rose Pink', hex: 'linear-gradient(90deg, #FF512F, #DD2476)' },
+          { value: 'from-[#8E2DE2] to-[#4A00E0]', label: 'Deep Purple & Electric Violet', hex: 'linear-gradient(90deg, #8E2DE2, #4A00E0)' },
+          { value: 'from-[#00c6ff] to-[#0072ff]', label: 'Neon Cyan & Royal Blue', hex: 'linear-gradient(90deg, #00c6ff, #0072ff)' },
+          { value: 'from-[#00F260] to-[#0575E6]', label: 'Neon Green & Deep Blue', hex: 'linear-gradient(90deg, #00F260, #0575E6)' },
+          { value: 'from-[#ec008c] to-[#fc6767]', label: 'Hot Pink & Coral Sunset', hex: 'linear-gradient(90deg, #ec008c, #fc6767)' },
+          { value: 'from-[#f12711] to-[#f5af19]', label: 'Flame Orange & Amber', hex: 'linear-gradient(90deg, #f12711, #f5af19)' },
+          { value: 'from-[#654ea3] to-[#eaafc8]', label: 'Lavender & Rose Quartz', hex: 'linear-gradient(90deg, #654ea3, #eaafc8)' },
+        ];
+        const currentGradient = value || 'from-cyan-500 to-blue-500';
+        const isCustomGradient = !gradientOptions.some(opt => opt.value === currentGradient);
+        const activeOption = gradientOptions.find(opt => opt.value === currentGradient);
+        const currentHex = activeOption ? activeOption.hex : 'linear-gradient(90deg, #06b6d4, #3b82f6)';
+      %>
+        <select name="gradient" id="gradient-select">
+          <% gradientOptions.forEach(opt => { %>
+            <option value="<%= opt.value %>" data-hex="<%= opt.hex %>" <%= currentGradient === opt.value ? 'selected' : '' %>>
+              <%= opt.label %>
+            </option>
+          <% }) %>
+          <% if (isCustomGradient && currentGradient) { %>
+            <option value="<%= currentGradient %>" data-hex="linear-gradient(90deg, #06b6d4, #3b82f6)" selected>
+              Custom: <%= currentGradient %>
+            </option>
+          <% } %>
+        </select>
+        <div id="gradient-preview" style="height: 6px; width: 100%; border-radius: 3px; margin-top: 6px; background: <%= currentHex %>; transition: background 0.3s ease;"></div>
+        <small style="color: #8fa4b4; margin-top: 2px;">Accent color gradient displayed on the project card.</small>
+
+      <% } else if (field === 'size') { 
+        const sizeOptions = [
+          { value: 'lg:col-span-6', label: 'Half Width (2 cards per row) — Balanced / Standard' },
+          { value: 'lg:col-span-8', label: 'Wide Card (2/3 width) — Featured Showcase' },
+          { value: 'lg:col-span-4', label: 'Compact Card (1/3 width) — Small Card' },
+          { value: 'lg:col-span-12', label: 'Full Width (1 card per row) — Banner Card' },
+        ];
+        const currentSize = value || 'lg:col-span-6';
+        const isCustomSize = !sizeOptions.some(opt => opt.value === currentSize);
+      %>
+        <select name="size">
+          <% sizeOptions.forEach(opt => { %>
+            <option value="<%= opt.value %>" <%= currentSize === opt.value ? 'selected' : '' %>>
+              <%= opt.label %>
+            </option>
+          <% }) %>
+          <% if (isCustomSize && currentSize) { %>
+            <option value="<%= currentSize %>" selected>
+              Custom: <%= currentSize %>
+            </option>
+          <% } %>
+        </select>
+        <small style="color: #8fa4b4; margin-top: 2px;">Card layout size on desktop grid.</small>
+
+      <% } else if (field === 'color') { 
+        const colorOptions = [
+          { value: 'from-cyan-500/20 to-blue-500/20', label: 'Cyan & Ocean Blue (Default)' },
+          { value: 'from-purple-500/20 to-indigo-500/20', label: 'Purple & Indigo' },
+          { value: 'from-emerald-500/20 to-teal-500/20', label: 'Emerald & Teal' },
+          { value: 'from-orange-500/20 to-amber-500/20', label: 'Orange & Amber' },
+          { value: 'from-rose-500/20 to-pink-500/20', label: 'Rose & Pink' },
+          { value: 'from-blue-500/20 to-violet-500/20', label: 'Blue & Violet' },
+        ];
+        const currentColor = value || 'from-cyan-500/20 to-blue-500/20';
+        const isCustomColor = !colorOptions.some(opt => opt.value === currentColor);
+      %>
+        <select name="color">
+          <% colorOptions.forEach(opt => { %>
+            <option value="<%= opt.value %>" <%= currentColor === opt.value ? 'selected' : '' %>>
+              <%= opt.label %>
+            </option>
+          <% }) %>
+          <% if (isCustomColor && currentColor) { %>
+            <option value="<%= currentColor %>" selected>
+              Custom: <%= currentColor %>
+            </option>
+          <% } %>
+        </select>
+
       <% } else { %>
         <input name="<%= field %>" value="<%= value || '' %>" <%= ['title', 'category', 'role', 'degree'].includes(field) ? 'required' : '' %>>
       <% } %>
@@ -51,5 +133,21 @@
 
   <button type="submit" style="margin-top: 10px;">Save record</button>
 </form>
+
+<script>
+  (function() {
+    const gradientSelect = document.getElementById('gradient-select');
+    const previewBar = document.getElementById('gradient-preview');
+    if (gradientSelect && previewBar) {
+      gradientSelect.addEventListener('change', function() {
+        const selected = this.options[this.selectedIndex];
+        const hex = selected.getAttribute('data-hex');
+        if (hex) {
+          previewBar.style.background = hex;
+        }
+      });
+    }
+  })();
+</script>
 
 <%- include('./footer') %>
