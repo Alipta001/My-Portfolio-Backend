@@ -30,6 +30,16 @@ class ApiController {
     });
   }
 
+  formatRecord(record, req) {
+    if (!record) return record;
+    const item = { ...record };
+    if (item.image && typeof item.image === 'string' && item.image.startsWith('/')) {
+      const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
+      item.image = `${baseUrl.replace(/\/+$/, '')}${item.image}`;
+    }
+    return item;
+  }
+
   // ======================================================
   // GENERIC LIST
   // ======================================================
@@ -49,10 +59,12 @@ class ApiController {
         })
         .lean();
 
+      const formatted = data.map(item => this.formatRecord(item, req));
+
       return this.response(
         res,
         "Records loaded",
-        data
+        formatted
       );
     } catch (error) {
       console.error(
@@ -130,7 +142,7 @@ class ApiController {
       return this.response(
         res,
         "Project loaded",
-        [project]
+        [this.formatRecord(project, req)]
       );
     } catch (error) {
       console.error(
