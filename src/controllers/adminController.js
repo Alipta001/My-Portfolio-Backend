@@ -1,3 +1,4 @@
+const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const Admin = require('../models/Admin');
 const Project = require('../models/Project');
@@ -7,6 +8,7 @@ const Education = require('../models/Education');
 const Service = require('../models/Service');
 const Contact = require('../models/Contact');
 const slugify = require('slugify');
+const { uploadToCloudinary } = require('../config/cloudinary');
 
 const resources = {
   projects: Project,
@@ -107,7 +109,22 @@ class AdminController {
 
     // Handle uploaded file or image URL
     if (file) {
-      result.image = `/uploads/${file.filename}`;
+      try {
+        const cloudResult = await uploadToCloudinary(file.path, {
+          folder: `portfolio/${resource}`,
+        });
+        if (cloudResult && cloudResult.secure_url) {
+          result.image = cloudResult.secure_url;
+          try {
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+          } catch (_) {}
+        } else {
+          result.image = `/uploads/${file.filename}`;
+        }
+      } catch (uploadErr) {
+        console.error('Cloudinary upload failed, using local storage fallback:', uploadErr.message || uploadErr);
+        result.image = `/uploads/${file.filename}`;
+      }
     } else if (body.imageUrl && typeof body.imageUrl === 'string' && body.imageUrl.trim()) {
       result.image = body.imageUrl.trim();
     } else if (body.image && typeof body.image === 'string' && body.image.trim()) {

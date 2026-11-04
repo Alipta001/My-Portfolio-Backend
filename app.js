@@ -78,6 +78,13 @@ for (const variable of requiredEnvVariables) {
   }
 }
 
+const { checkConfigured } = require("./src/config/cloudinary");
+if (checkConfigured()) {
+  console.log("☁️ Cloudinary is active for permanent image storage");
+} else {
+  console.log("📁 Cloudinary not configured; using local storage fallback (/uploads)");
+}
+
 // ======================================================
 // APP INITIALIZATION
 // ======================================================
